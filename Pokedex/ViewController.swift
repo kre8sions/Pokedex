@@ -99,10 +99,12 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         if musicPlayer.isPlaying{
         
             musicPlayer.pause()
+            sender.alpha = 0.2
             
         } else {
         
             musicPlayer.play()
+            sender.alpha = 1.0
         }
     }
 
