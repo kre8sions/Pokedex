@@ -34,8 +34,22 @@ class PokemonDetailVC: UIViewController {
         super.viewDidLoad()
 
         nameLbl.text = pokemon.name
+        pokemon.downloadPokemonDetails {
+            print("did arrive here")
+            //whatever happens here is only after network call is completed
+            self.updateUI()
+            
+        }
     }
-
+    func updateUI(){
+    
+        attackLbl.text = pokemon.attack
+        defenseLbl.text = pokemon.defense
+        weightLbl.text = pokemon.weight
+        heightLbl.text = pokemon.height
+        
+    
+    }
 
     @IBAction func backBtnPressed(_ sender: UIButton) {
         dismiss(animated:true,completion: nil)
