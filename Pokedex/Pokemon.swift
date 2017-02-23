@@ -22,7 +22,37 @@ class Pokemon {
     private var _attack:String!
     private var _nextEvolutionTxt:String!
     private var _pokemonURL:String!
+    private var _nextEvolutionName:String!
+    private var _nextEvolutionId:String!
+    private var _nextEvolutionLv:String!
     
+    
+    
+    
+    
+    var nextEvolutionName: String{
+        
+        if _nextEvolutionName == nil {
+            _nextEvolutionName = ""
+        }
+        return _nextEvolutionName
+    }
+    
+    var nextEvolutionId: String{
+        
+        if _nextEvolutionId == nil {
+            _nextEvolutionId = ""
+        }
+        return _nextEvolutionId
+    }
+    
+    var nextEvolutionLv: String{
+        
+        if _nextEvolutionLv == nil {
+            _nextEvolutionLv = ""
+        }
+        return _nextEvolutionLv
+    }
     
     var description: String{
         
@@ -134,7 +164,104 @@ class Pokemon {
                 print(self._height)
                 print(self._attack)
                 print(self._defense)
-            
+                
+                if let types = dict["types"] as? [Dictionary<String,String>] , types.count > 0{
+                
+                    if let name = types[0]["name"]{
+                    
+                        self._type = name.capitalized
+                    
+                    }
+                    
+                    if types.count > 1{
+                    
+                        for x in 1..<types.count{
+                        
+                            if let name = types[x]["name"]{
+                            
+                                self._type! += "/\(name)"
+                            }
+                        }
+                    }
+                    
+                
+                } else {
+                    
+                    self._type = ""
+                
+                }
+                
+                if let descArr = dict["descriptions"] as? [Dictionary<String,String>] , descArr.count > 0{
+                
+                    if let url = descArr[0]["resource_uri"]{
+                    
+                        let descURL = "\(URL_BASE)\(url)"
+                        
+                        Alamofire.request(descURL).responseJSON(completionHandler: {(response) in
+                        
+                            if let descDict = response.result.value as? Dictionary<String,AnyObject>{
+                            
+                                if let description = descDict["description"] as? String {
+                                
+                                    let newDescription = description.replacingOccurrences(of: "POKMON", with: "POKEMON")
+                                    self._description = newDescription
+                                    print(newDescription)
+                                
+                                }
+                            
+                            }
+                        
+                        completed()
+                        })
+                    
+                    }
+                
+                } else {
+                
+                    self._description = ""
+                
+                }
+                
+                if let evolutions = dict["evolutions"] as? [Dictionary<String,AnyObject>] , evolutions.count > 0 {
+                
+                    if let nextEvo = evolutions[0]["to"] as? String {
+                    
+                        if nextEvo.range(of: "mega") == nil{
+                        
+                            self._nextEvolutionName = nextEvo
+                            
+                            if let uri = evolutions[0]["resource_uri"] as? String{
+                            
+                                let newStr = uri.replacingOccurrences(of: "/api/v1/pokemon/", with: "")
+                                let nextEvoId = newStr.replacingOccurrences(of: "/", with: "")
+                                
+                                self._nextEvolutionId = nextEvoId
+                                
+                                if let lvlExist = evolutions[0]["level"]{
+                                
+                                    if let lvl = lvlExist as? Int {
+                                    
+                                        self._nextEvolutionLv = "\(lvl)"
+                                    
+                                    }
+                                
+                                } else {
+                                
+                                    self._nextEvolutionLv = ""
+                                
+                                
+                                }
+                            
+                            }
+                        
+                        }
+                    
+                    
+                    }
+                    
+                
+                
+                }
             }
             completed()
         }
